@@ -69,7 +69,7 @@ def logout():
 
 @app.route('/download')
 def download():
-    pass
+    return send_from_directory('static', path="files/cheat_sheet.pdf")
 
 
 if __name__ == "__main__":

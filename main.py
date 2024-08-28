@@ -44,7 +44,7 @@ with app.app_context():
 
 @app.route('/')
 def home():
-    return render_template("index.html")
+    return render_template("index.html", logged_in=current_user.is_authenticated)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -64,7 +64,7 @@ def register():
         else:
             flash("User with same email already exists, login instead!")
             return redirect(url_for('login'))
-    return render_template("register.html")
+    return render_template("register.html", logged_in=current_user.is_authenticated)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -84,13 +84,13 @@ def login():
         else:
             flash("User does not exist!")
             return redirect(url_for('login'))
-    return render_template("login.html")
+    return render_template("login.html", logged_in=current_user.is_authenticated)
 
 
 @app.route('/secrets')
 @login_required
 def secrets():
-    return render_template("secrets.html", name=current_user.name.title())
+    return render_template("secrets.html", name=current_user.name.title(), logged_in=True)
 
 
 @app.route('/logout')

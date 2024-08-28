@@ -50,14 +50,20 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == "POST":
-        new_user = User(
-            name=request.form.get("name"),
-            email=request.form.get("email"),
-            password=generate_password_hash(request.form.get("password"), method='pbkdf2:sha256', salt_length=8)
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        return render_template("secrets.html")
+        result = db.session.execute(db.select(User).where(User.email == request.form.get("email")))
+        user = result.scalar()
+        if not user:
+            new_user = User(
+                name=request.form.get("name"),
+                email=request.form.get("email"),
+                password=generate_password_hash(request.form.get("password"), method='pbkdf2:sha256', salt_length=8)
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            return render_template("secrets.html")
+        else:
+            flash("User with same email already exists, login instead!")
+            return redirect(url_for('login'))
     return render_template("register.html")
 
 
@@ -72,6 +78,12 @@ def login():
             if check_password_hash(user.password, password):
                 login_user(user)
                 return redirect(url_for('secrets'))
+            else:
+                flash("Invalid Password!")
+                return redirect(url_for('login'))
+        else:
+            flash("User does not exist!")
+            return redirect(url_for('login'))
     return render_template("login.html")
 
 
